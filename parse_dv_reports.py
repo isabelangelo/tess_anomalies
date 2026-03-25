@@ -151,7 +151,7 @@ def parse_tces(filename):
         planet_properties =  planet_candidate_data | model_parameter_data | all_transits_fit_data
         tce_data.append(data_properties | star_properties | planet_properties)
         
-        return tce_data
+    return tce_data
     
 # create dictionaries for each TCE and store as dataframe
 print('loading DV data from files')
