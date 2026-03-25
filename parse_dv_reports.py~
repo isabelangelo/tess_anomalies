@@ -139,7 +139,7 @@ def parse_tces(filename):
                         ghost_diagnostic_data[tag_i] = elem_i.attrib['value']
                         ghost_diagnostic_data[tag_i+'_significance'] = elem_i.attrib['significance']
         
-        planet_properties =  planet_candidate_data | model_parameter_data | all_transits_fit_data | binary_discrimination_data | bootstrap_data | ghost_diagnostic_data | weak_secondary_data
+        planet_properties =  planet_candidate_data | model_parameter_data | all_transits_fit_data | binary_discrimination_data | bootstrap_data | ghost_diagnostic_data
         tce_data.append(difference_image_data | star_properties | planet_properties)
     return tce_data
     
