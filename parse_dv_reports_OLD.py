@@ -85,7 +85,7 @@ def parse_tces(filename):
     # load xml file main contents
     tree = ET.parse(filename)
     dvTargetResults = tree.getroot()
-
+    
     # target data: star + limb darkening properties
     target_results_data = {key: dvTargetResults.attrib.get(key, '') for key in target_id_keys}
     for elem in dvTargetResults:
@@ -95,7 +95,7 @@ def parse_tces(filename):
     dvlimbDarkeningModel = dvTargetResults.find('dv:limbDarkeningModel', ns)
     limb_darkening_data = dvlimbDarkeningModel.attrib
     star_properties = target_results_data | limb_darkening_data
-
+    
     # planet data: fit + candidate metrics, transit properties, binary metrics
     tce_data = []
     for dvplanetResults in dvTargetResults.findall('dv:planetResults', ns):
@@ -108,7 +108,6 @@ def parse_tces(filename):
         model_parameter_data = {}
         difference_image_data = {}
         ghost_diagnostic_data = {}
-        centroid_data = {}
 
         # iterate through each recorded TCE
         for elem in dvplanetResults:
@@ -133,25 +132,16 @@ def parse_tces(filename):
                         binary_discrimination_data[tag_i+'_significance'] = elem_i.attrib['significance']
             elif tag == 'bootstrapResults':
                 bootstrap_data = {'bootstrap_'+key: elem.attrib[key] for key in bootstrap_keys}
-            elif tag == 'centroidResults':
-                e0 = elem[0]
-                tic_position_offset_sigma = float(e0[0][2].attrib['value'])/float(e0[0][2].attrib['uncertainty'])
-                centroid_offset_sigma = float(e0[1][2].attrib['value'])/float(e0[1][2].attrib['uncertainty'])
-                centroid_data['msTicCentroidOffsetsmeanSkyOffset_sigma'] = tic_position_offset_sigma
-                centroid_data['msControlCentroidOffsetsmeanSkyOffset_sigma'] = centroid_offset_sigma
-                
             elif tag == 'ghostDiagnosticResults':
                 for elem_i in elem:
                     tag_i = elem_i.tag.split('}')[-1]
                     if tag_i in ghost_diagnostic_keys_set:
                         ghost_diagnostic_data[tag_i] = elem_i.attrib['value']
                         ghost_diagnostic_data[tag_i+'_significance'] = elem_i.attrib['significance']
-
-        data_properties = difference_image_data | binary_discrimination_data | bootstrap_data | ghost_diagnostic_data | centroid_data
-        planet_properties =  planet_candidate_data | model_parameter_data | all_transits_fit_data
-        tce_data.append(data_properties | star_properties | planet_properties)
         
-        return tce_data
+        planet_properties =  planet_candidate_data | model_parameter_data | all_transits_fit_data | binary_discrimination_data | bootstrap_data | ghost_diagnostic_data | weak_secondary_data
+        tce_data.append(difference_image_data | star_properties | planet_properties)
+    return tce_data
     
 # create dictionaries for each TCE and store as dataframe
 print('loading DV data from files')
